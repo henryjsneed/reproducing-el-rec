@@ -24,12 +24,12 @@ def time_wrap():
 
 def get_col(inputBatch):
     x_both, y = inputBatch
-    x_cat = list(x_both.values())[0:26]
-    x_int = torch.cat(list(x_both.values())[26:39], 1)
+    x_cat = list(x_both.values())[0:20]
+    x_int = torch.cat(list(x_both.values())[20:], 1)
     length = y.shape[0]
     y = y.reshape(length, 1)
 
-    for j in range(26):
+    for j in range(20):
         if access_list[j].shape[0] > 0:
             x_cat[j] = access_list[j][x_cat[j]]
     x_cat = torch.stack(x_cat)
@@ -38,16 +38,16 @@ def get_col(inputBatch):
         
 
 if __name__ == "__main__":
-    CONTINUOUS_COLUMNS = ["I" + str(x) for x in range(1, 14)]
-    CATEGORICAL_COLUMNS = ["C" + str(x) for x in range(1, 27)]
+    CONTINUOUS_COLUMNS = ["session_position", "session_length", "hour_of_day", "hist_user_behavior_n_seekfwd", "hist_user_behavior_n_seekback"]
+    CATEGORICAL_COLUMNS = ["session_id", "track_id_clean", "skip_1", "skip_2", "skip_3", "not_skipped", "context_switch", "no_pause_before_play", "short_pause_before_play", "long_pause_before_play", "hist_user_behavior_is_shuffle", "date", "premium", "context_type", "hist_user_behavior_reason_start", "hist_user_behavior_reason_end"]
     LABEL_COLUMNS = ["label"]
 
-    BATCH_SIZE = int(os.environ.get("BATCH_SIZE", 8192))
+    BATCH_SIZE = 8192
     PARTS_PER_CHUNK = int(os.environ.get("PARTS_PER_CHUNK", 2))
 
     args = parser.parse_args()
     if_reorder = args.reorder
-    input_path = "/workspace/SC_artifacts_eval/processed_data/workspace/terabyte_workspace/output"
+    input_path = "/workspace/SC_artifacts_eval/processed_data/workspace/spotify_session_workspace/output"
 
     train_paths = glob.glob(os.path.join(input_path, "train", "*.parquet"))
     valid_paths = glob.glob(os.path.join(input_path, "valid", "*.parquet"))
@@ -72,29 +72,24 @@ if __name__ == "__main__":
     # We limit the output dimension to 16
     embeddings = [[emb[0], min(16, emb[1])] for emb in embeddings] # embedding table size
 
-    embedding_table_size = []  # embedding table size
+    embedding_table_size = []  #embedding table size
     for emb in embeddings:
         embedding_table_size.append(emb[0])
-    
     print(embedding_table_size)
 
     device = 'cuda:0'
     length = len(embedding_table_size)
     access_list = []
-    reordering_list = [0,9,10,19,20,21]
 
     print("Access list shapes:")
     for idx, tensor in enumerate(access_list):
         print(f"access_list[{idx}]: {tensor.shape}")
 
     for i in range(length):
-        if i in reordering_list:
-            if if_reorder == 1:
-                x = torch.load("/workspace/SC_artifacts_eval/Access_Index/terabyte/access_index/access_index_"+ str(i) +"_new.pt").to(device)
-            else:
-                x = torch.load("/workspace/SC_artifacts_eval/Access_Index/terabyte/access_index/access_index_"+ str(i) +".pt").to(device)
+        if if_reorder == 1:
+            x = torch.load("/workspace/SC_artifacts_eval/Access_Index/spotify_session/access_index/access_index_"+ str(i) +"_new.pt").to(device)
         else:
-            x = torch.load("/workspace/SC_artifacts_eval/Access_Index/terabyte/access_index/access_index_" + str(i) + ".pt").to(device)
+            x = torch.load("/workspace/SC_artifacts_eval/Access_Index/spotify_session/access_index/access_index_"+ str(i) +".pt").to(device)
         access_list.append(x)
 
     train_iter = iter(train_dataloader)
@@ -108,10 +103,11 @@ if __name__ == "__main__":
 
     # ====================== save ========================
     if if_reorder == 1:
-        torch.save(sparse, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/reordered_sparse.pt')
-        torch.save(dense, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/reordered_dense.pt')
-        torch.save(label, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/reordered_label.pt')
+        torch.save(sparse, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/reordered_sparse.pt')
+        torch.save(dense, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/reordered_dense.pt')
+        torch.save(label, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/reordered_label.pt')
     else:
-        torch.save(sparse, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/sparse.pt')
-        torch.save(dense, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/dense.pt')
-        torch.save(label, '/workspace/SC_artifacts_eval/Access_Index/terabyte/training_data/label.pt')
+        torch.save(sparse, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/sparse.pt')
+        torch.save(dense, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/dense.pt')
+    torch.save(label, '/workspace/SC_artifacts_eval/Access_Index/spotify_session/training_data/label.pt')
+

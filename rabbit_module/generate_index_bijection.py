@@ -49,13 +49,24 @@ def get_col_avazu(inputBatch):
     
     return y, x_cat, x_int
 
+def get_col_spotify(inputBatch):
+    x_both, y = inputBatch
+    x_cat = list(x_both.values())[0:15] # Change the range to match the number of categorical columns in the Spotify dataset
+    x_int = torch.cat(list(x_both.values())[15:18], 1) # Update the range to match the number of continuous columns in the Spotify dataset
+    length = y.shape[0]
+    y = y.reshape(length, 1)
+
+    for j in range(15): # Change the range to match the number of categorical columns in the Spotify dataset
+        x_cat[j] = access_list[j][x_cat[j]]
+
+    return y, x_cat, x_int
 
 if __name__ == "__main__":
 
     LABEL_COLUMNS = ["label"]
     BASE_DIR = "/workspace/SC_artifacts_eval/processed_data"
 
-    BATCH_SIZE = int(os.environ.get("BATCH_SIZE", 512)) # 2048  400000
+    BATCH_SIZE = 64 #int(os.environ.get("BATCH_SIZE", 512)) # 2048  400000
     PARTS_PER_CHUNK = int(os.environ.get("PARTS_PER_CHUNK", 2))
 
     args = parser.parse_args()
@@ -74,6 +85,10 @@ if __name__ == "__main__":
         input_path = os.path.join(BASE_DIR, "workspace/terabyte_workspace/output")
         CONTINUOUS_COLUMNS = ["I" + str(x) for x in range(1, 14)]
         CATEGORICAL_COLUMNS = ["C" + str(x) for x in range(1, 27)]
+    elif dataset == "spotify_session":
+        input_path = os.path.join(BASE_DIR, "workspace/spotify_workspace/output")
+        CONTINUOUS_COLUMNS = ["I" + str(x) for x in range(1, 4)]
+        CATEGORICAL_COLUMNS = ["C" + str(x) for x in range(1, 16)]
 
     train_paths = glob.glob(os.path.join(input_path, "train", "*.parquet"))
     train_data = nvt.Dataset(train_paths, engine="parquet", part_mem_fraction=0.04 / PARTS_PER_CHUNK)
@@ -99,7 +114,10 @@ if __name__ == "__main__":
         train_dataloader = DLDataLoader(
             train_data_itrs, collate_fn=get_col_avazu, batch_size=None, pin_memory=False, num_workers=0
         )
-    
+    elif dataset == "spotify_session":
+        train_dataloader = DLDataLoader(
+            train_data_itrs, collate_fn=get_col_spotify, batch_size=None, pin_memory=False, num_workers=0
+        )
     
     workflow = nvt.Workflow.load(os.path.join(input_path, "workflow"))
     embeddings = list(get_embedding_sizes(workflow).values())
@@ -124,7 +142,9 @@ if __name__ == "__main__":
     elif dataset == "avazu": #[7, 8]
         input_file = "/workspace/SC_artifacts_eval/Access_Index/avazu/access_index/access_index_" + str(table_idx) + ".pt"
         cat_num = 20
-
+    elif dataset == "spotify_session":
+        input_file = "/workspace/SC_artifacts_eval/Access_Index/spotify/access_index/access_index_" + str(table_idx) + ".pt"
+        cat_num = 15
     train_iter = iter(train_dataloader)
     total_batch_num = len(train_dataloader)
     # emb_index = torch.load(input_file).to(device)
@@ -184,9 +204,9 @@ if __name__ == "__main__":
         if k > hot_idx and k-hot_idx < new_edge_index.shape[0]:
             k = new_edge_index[k-hot_idx]
         final_index.append(k)
-    
+    print("completed for loop")
     tensor_index = torch.tensor(final_index) 
-
+    print("Completed torch.tensor")
     if dataset == "kaggle": #[2, 3, 11, 15, 20]
         output_file = "/workspace/SC_artifacts_eval/Access_Index/kaggle/access_index/access_index_" + str(table_idx) + "_new.pt"
 
@@ -196,6 +216,10 @@ if __name__ == "__main__":
     elif dataset == "terabyte": #[0, 9, 10, 19, 20, 21]
         output_file = "/workspace/SC_artifacts_eval/Access_Index/terabyte/access_index/access_index_" + str(table_idx) + "_new.pt"
     
+    elif dataset == "spotify_session":
+        output_file = "/workspace/SC_artifacts_eval/Access_Index/spotify/access_index/access_index_" + str(table_idx) + "_new.pt"
+    
+    print("performing save")
     torch.save(tensor_index, output_file)
     print("saved index bijection")
         

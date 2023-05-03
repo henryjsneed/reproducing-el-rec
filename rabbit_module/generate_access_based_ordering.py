@@ -44,3 +44,14 @@ if __name__ == "__main__":
                 true_index[indices[i]] = i
 
             torch.save(true_index, '/workspace/SC_artifacts_eval/Access_Index/terabyte/access_index/access_index_'+str(idx)+'.pt')
+            
+    elif dataset == "spotify_session":
+        for idx in range(15): # Change the range to match the number of categorical columns in the Spotify dataset
+            x = torch.load("/workspace/SC_artifacts_eval/Access_Index/spotify/access_record/access_" + str(idx) + ".pt")
+            sorted, indices = torch.sort(x,descending=True)
+
+            true_index = torch.arange(1,x.shape[0]+1,dtype=torch.long)
+            for i in range(x.shape[0]):
+                true_index[indices[i]] = i
+
+            torch.save(true_index, '/workspace/SC_artifacts_eval/Access_Index/spotify/access_index/access_index_'+str(idx)+'.pt')

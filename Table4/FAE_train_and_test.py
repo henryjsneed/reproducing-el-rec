@@ -21,7 +21,7 @@ sys.path.append('/workspace/SC_artifacts_eval/rabbit_module')
 
 from dlrm_cpu import DLRM_Net, DLRM_Net_terabyte
 from random_dataloader import in_memory_dataloader_cpu
-
+batch_num = 1024
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--dataset', type=str, default="kaggle") 
 
@@ -51,7 +51,7 @@ def get_col_avazu(inputBatch):
 
 def get_pick(y):
     y_list = y.detach().cpu().numpy()
-
+    batch_num = 1024
     neg_num = y_list.sum()
     pos_num = int(neg_num * 4) # sub sample 20% 
 
@@ -174,6 +174,7 @@ if __name__ == "__main__":
 
         # =================== Filling Skew Table ======================
         print("record access...")
+        train_iter = iter(train_dataloader) # reset data loader
         for i in tqdm(range(0,batch_num)):
             y, x_cat, x_int = train_iter.next()
             for line in x_cat.transpose(0, 1):
@@ -205,7 +206,6 @@ if __name__ == "__main__":
         train_hot = []
         train_normal = []
         train_iter = iter(train_dataloader) # reset data loader
-
         for i in tqdm(range(0,batch_num)):
             y, x_cat, x_int = train_iter.next()
             for line in x_cat.transpose(0, 1):
@@ -215,13 +215,13 @@ if __name__ == "__main__":
                         lS_i.append(hot_emb_dict[j][(j, int(lS_i_index))])
                     else:
                         break
-                if ( len(lS_i) == len(train_tuple[1])):
+                if ( len(lS_i) == len(x_cat)):
                     lS_i = np.array(lS_i).astype(np.float32)
-                    train_hot.append((train_tuple[0], lS_i, train_tuple[2]))
+                    train_hot.append((y, lS_i, x_int))
                 else:
-                    train_normal.append(train_tuple)
+                    train_normal.append((y, x_cat, x_int))
         # ======================== Saving npz files =======================
-
+        train_hot = [tensor.cpu() if isinstance(tensor, torch.Tensor) else tensor for tensor in train_hot]
         train_hot = np.array(train_hot).astype(np.object)
         train_normal = np.array(train_normal).astype(np.object)
         hot_emb_dict = np.array(hot_emb_dict).astype(np.object)

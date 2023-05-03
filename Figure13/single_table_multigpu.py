@@ -90,11 +90,12 @@ def init_process(rank, size, backend='nccl'):
 
         total_time = end-start
         throughput = nDev*iters/(end-start)
-
-        print("time:{:.3f}, throughput:{:.3f}".format(total_time, throughput))
-        print("Result saved to out.log")
+        dist.barrier()
+        print("time:{:.3f}, throughput:{:.3f}".format(total_time, throughput), flush=True)
+        print("Result saved to out.log", flush=True)
         with open('out.log', 'a') as f:
             f.write("ELRec_single_large_table, {}GPU, throughput: {:.3f}\n".format(nDev, throughput))
+            f.flush()
 
     else:
         for i in range(iters):
@@ -107,7 +108,7 @@ def init_process(rank, size, backend='nccl'):
             dist.all_reduce(eff_emb.tt_cores[0].data, op=dist.ReduceOp.SUM,async_op=True)
             dist.all_reduce(eff_emb.tt_cores[1].data, op=dist.ReduceOp.SUM,async_op=True)
             dist.all_reduce(eff_emb.tt_cores[2].data, op=dist.ReduceOp.SUM,async_op=True)
-
+            # dist.barrier()
 
 if __name__ == "__main__":
     args = parser.parse_args()

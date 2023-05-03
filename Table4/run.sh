@@ -1,26 +1,28 @@
 # ======================= Kaggle =====================
-# python facebook_dlrm_train_and_test.py --dataset=kaggle
+python facebook_dlrm_train_and_test.py --dataset=kaggle
+sleep 15
+python FAE_train_and_test.py --dataset=kaggle
+sleep 15
+python TTRec_train_and_test.py --dataset=kaggle
+sleep 15
 
-# python FAE_train_and_test.py --dataset=kaggle
-
-# python TTRec_train_and_test.py --dataset=kaggle
-
-# python ELRec_train_and_test.py --dataset=kaggle
+python ELRec_train_and_test.py --dataset=kaggle
 
 # ======================= Avazu =====================
-# python facebook_dlrm_train_and_test.py --dataset=avazu
-
-# python FAE_train_and_test.py --dataset=avazu
-
-# python TTRec_train_and_test.py --dataset=avazu
-
-# python ELRec_train_and_test.py --dataset=avazu
+python facebook_dlrm_train_and_test.py --dataset=avazu
+sleep 15
+python FAE_train_and_test.py --dataset=avazu
+sleep 15
+python TTRec_train_and_test.py --dataset=avazu
+sleep 15
+python ELRec_train_and_test.py --dataset=avazu
+sleep 15
 
 # ==================== terabyte =====================
 python facebook_dlrm_train_and_test.py --dataset=terabyte
-
-# python FAE_train_and_test.py --dataset=terabyte
-
-# python TTRec_train_and_test.py --dataset=terabyte
-
-# python ELRec_train_and_test.py --dataset=terabyte
+sleep 15
+python FAE_train_and_test.py --dataset=terabyte
+sleep 15
+python TTRec_train_and_test.py --dataset=terabyte
+sleep 15
+python ELRec_train_and_test.py --dataset=terabyte

@@ -41,6 +41,10 @@ class in_memory_dataloader:
             self.dense = torch.load(base_dir+"terabyte/training_data/dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"terabyte/training_data/sparse.pt", map_location=torch.device(device))
             self.label = torch.load(base_dir+"terabyte/training_data/label.pt", map_location=torch.device(device))
+        elif dataset == "spotify_session":
+            self.dense = torch.load(base_dir+"spotify/training_data/dense.pt", map_location=torch.device(device))
+            self.sparse = torch.load(base_dir+"spotify/training_data/sparse.pt", map_location=torch.device(device))
+            self.label = torch.load(base_dir+"spotify/training_data/label.pt", map_location=torch.device(device))
         elif dataset == "kaggle_reordered":
             self.dense = torch.load(base_dir+"kaggle/training_data/reordered_dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"kaggle/training_data/reordered_sparse.pt", map_location=torch.device(device))
@@ -53,6 +57,11 @@ class in_memory_dataloader:
             self.dense = torch.load(base_dir+"terabyte/training_data/reordered_dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"terabyte/training_data/reordered_sparse.pt", map_location=torch.device(device))
             self.label = torch.load(base_dir+"terabyte/training_data/reordered_label.pt", map_location=torch.device(device))
+        elif dataset == "spotify_session_reordered":
+            self.dense = torch.load(base_dir+"spotify/training_data/reordered_dense.pt", map_location=torch.device(device))
+            self.sparse = torch.load(base_dir+"spotify/training_data/reordered_sparse.pt", map_location=torch.device(device))
+            self.label = torch.load(base_dir+"spotify/training_data/reordered_label.pt", map_location=torch.device(device))
+        
         else:
             print("Error dataset name")
             exit(0)
@@ -97,6 +106,10 @@ class in_memory_dataloader_cpu:
             self.dense = torch.load(base_dir+"terabyte/training_data/dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"terabyte/training_data/sparse.pt").to('cpu')
             self.label = torch.load(base_dir+"terabyte/training_data/label.pt", map_location=torch.device(device))
+        elif dataset == "spotify":
+            self.dense = torch.load(base_dir+"spotify/training_data/dense.pt", map_location=torch.device(device))
+            self.sparse = torch.load(base_dir+"spotify/training_data/sparse.pt").to('cpu')
+            self.label = torch.load(base_dir+"spotify/training_data/label.pt", map_location=torch.device(device))
         elif dataset == "kaggle_reordered":
             self.dense = torch.load(base_dir+"kaggle/training_data/reordered_dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"kaggle/training_data/reordered_sparse.pt").to('cpu')
@@ -109,6 +122,10 @@ class in_memory_dataloader_cpu:
             self.dense = torch.load(base_dir+"terabyte/training_data/reordered_dense.pt", map_location=torch.device(device))
             self.sparse = torch.load(base_dir+"terabyte/training_data/reordered_sparse.pt").to('cpu')
             self.label = torch.load(base_dir+"terabyte/training_data/reordered_label.pt", map_location=torch.device(device))
+        elif dataset == "spotify_reordered":
+            self.dense = torch.load(base_dir+"spotify/training_data/reordered_dense.pt", map_location=torch.device(device))
+            self.sparse = torch.load(base_dir+"spotify/training_data/reordered_sparse.pt").to('cpu')
+            self.label = torch.load(base_dir+"spotify/training_data/reordered_label.pt", map_location=torch.device(device))
         else:
             print("Error dataset name")
             exit(0)

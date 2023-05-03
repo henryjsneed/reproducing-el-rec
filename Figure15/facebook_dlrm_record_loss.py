@@ -75,6 +75,8 @@ if __name__ == "__main__":
     if os.path.exists('loss_record/DLRM.txt'):
         print("DLRM.txt exists, skip training")
         exit()
+    else:
+        print("DLRM.txt does not exist, starting training")
 
     if dataset == "avazu" or dataset == "avazu_reordered":
         table_num = 20
@@ -118,7 +120,7 @@ if __name__ == "__main__":
         input_path = os.path.join(BASE_DIR, "workspace/terabyte_workspace/output")
         CONTINUOUS_COLUMNS = ["I" + str(x) for x in range(1, 14)]
         CATEGORICAL_COLUMNS = ["C" + str(x) for x in range(1, 27)]
-
+    print("calling glob.glob")
     train_paths = glob.glob(os.path.join(input_path, "train", "*.parquet"))
     train_data = nvt.Dataset(train_paths, engine="parquet", part_mem_fraction=0.04 / PARTS_PER_CHUNK)
     valid_paths = glob.glob(os.path.join(input_path, "valid", "*.parquet"))
@@ -165,10 +167,17 @@ if __name__ == "__main__":
             valid_data_itrs, collate_fn=get_col_kaggle, batch_size=None, pin_memory=False, num_workers=0
         )
 
-    batch_size = 4096
+    batch_size = 512
     device = 'cuda:0'
+    print("Using device:", device)
 
     if dataset == "terabyte":
+        print("Before initializing DLRM_Net_terabyte")
+        print("FEATURE SIZE: " + str(feature_size))
+        print("TABLE_LENGTH: " + str(table_length))
+        print("FEATURE SIZE: " + str(feature_size))
+        print("DENSE NUM: " + str(dense_num))
+        print("TOP NUM: " + str(top_num))
         dlrm = DLRM_Net_terabyte(
             feature_size, # sparse feature size
             table_length,
@@ -177,6 +186,7 @@ if __name__ == "__main__":
             'dot',
             device
         )
+        print("After initializing DLRM_Net_terabyte")
     else:
         dlrm = DLRM_Net(
             feature_size, # sparse feature size
@@ -188,7 +198,7 @@ if __name__ == "__main__":
         )
 
     # dlrm = dlrm.to(device)
-    
+    print("setting learning rate to 1")
     learning_rate = 0.1 # default 0.1
     parameters = dlrm.parameters()
     optimizer = torch.optim.SGD(parameters, lr=learning_rate)
@@ -196,9 +206,10 @@ if __name__ == "__main__":
 
     train_iter = iter(train_dataloader)
     batch_num = 10000
-
+    
     if not os.path.exists('loss_record/DLRM.txt'):
         with open('loss_record/DLRM.txt', 'w') as f:
+            print("starting write into DLRM.txt")
             for j in range(10000):
                 label, sparse, dense = train_iter.next()
                 sparse = sparse.to('cpu')

@@ -12,7 +12,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--dataset', type=str, default="kaggle") 
 parser.add_argument('--nDev', type=int, default=1) 
-parser.add_argument('--batch_size', type=int, default=4096) 
+parser.add_argument('--batch_size', type=int, default=512) 
 
 
 

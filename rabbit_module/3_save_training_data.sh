@@ -1,18 +1,18 @@
 # ==================== kaggle ======================
 python save_dataset_kaggle.py --reorder=1
-
+sleep 20
 python save_dataset_kaggle.py --reorder=0
-
+sleep 20
 # ===================== avazu ======================
 python save_dataset_avazu.py --reorder=1
-
+sleep 20
 python save_dataset_avazu.py --reorder=0
-
+sleep 20
 # ==================== terabyte ====================
 python save_dataset_terabyte.py --reorder=1
-
+sleep 20
 python save_dataset_terabyte.py --reorder=0
-
+sleep 15
 
 # ==================== generate unique ====================
 mkdir /workspace/SC_artifacts_eval/Access_Index/kaggle_reordered/
